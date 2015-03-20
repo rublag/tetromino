@@ -1,21 +1,6 @@
 /**
  * Created by user on 14.03.2015.
  */
-var fieldX = 10;
-var fieldY = 22;
-var field = new Array(fieldY);
-for(var i=0; i< field.length; ++i)
-    field[i] = new Array(fieldX);
-
-var rows = document.getElementsByClassName("row");
-for(var row = 0; row < rows.length; ++row)
-{
-    var cells = rows[row].getElementsByClassName("cell");
-    for(var cell = 0; cell < cells.length; ++cell)
-    {
-        field[row][cell] = cells[cell];
-    }
-}
 
 function Field()
 {
@@ -69,7 +54,7 @@ function Field()
 
     this.clearLine = function(y)
     {
-        for(var x = 0; i < this.width; ++x)
+        for(var x = 0; x < this.width; ++x)
         {
             this.setColor(x, y, "");
         }
@@ -85,41 +70,6 @@ function Field()
         }
     };
 
-}
-
-function isLineFilled(y)
-{
-    var allFilled = true;
-    for(var i = 0; i < field[y].length && allFilled; ++i)
-    {
-        if(isClear(i, y)) allFilled = false;
-    }
-    return allFilled;
-}
-
-function clearLine(y)
-{
-    for(var i = 0; i < field[y].length; ++i)
-    {
-        setColor(i, y, "");
-    }
-}
-
-function shiftLines(y)
-{
-    for(var i = y; i > 0; --i)
-    {
-        clearLine(i);
-        for(var j = 0; j < field[y].length; ++j)
-            field[i][j].style.backgroundColor = field[i-1][j].style.backgroundColor;
-    }
-}
-
-function clearField()
-{
-    for(var i = 0; i < field.length; ++i)
-        for(var j = 0; j < field[i].length; ++j)
-            setColor(j, i, "");
 }
 
 var field_ng = new Field();
@@ -297,12 +247,12 @@ function hasCollisions(TMx, TMy, TM)
     {
         for(var x = 0; clear && x < TM[2][y].length; ++x)
         {
-            if(TMx+TM[2][y][x] > fieldX-1 || TMy+y > fieldY-1 || TMx+TM[2][y][x] < 0 || TMy+y < 0)
+            if(TMx+TM[2][y][x] > field_ng.width-1 || TMy+y > field_ng.height-1 || TMx+TM[2][y][x] < 0 || TMy+y < 0)
             {
                 clear = false;
                 break;
             }
-            clear = isClear(TMx+TM[2][y][x], TMy+y);
+            clear = field_ng.isClear(TMx+TM[2][y][x], TMy+y);
         }
     }
     return !clear;
@@ -386,20 +336,10 @@ function lRotateTM()
 function createTM()
 {
     var TMId = getRandomBlock();
-    var xOffset = Math.round((fieldX-1)/2-tetraminos[TMId][1]/2);
+    var xOffset = Math.round((field_ng.width-1)/2-tetraminos[TMId][1]/2);
     if(!hasCollisions(xOffset, 0, tetraminos[TMId]))
         insertTM(xOffset, 0, tetraminos[TMId], 0);
     else stop();
-}
-
-function setColor(x, y, color)
-{
-    field[y][x].style.backgroundColor = color;
-}
-
-function isClear(x, y)
-{
-    return !field[y][x].style.backgroundColor;
 }
 
 function shift(direction)
@@ -415,7 +355,7 @@ function fall()
 {
     if(!shiftTM('b'))
     {
-        for(var i = 0, add_score = false; i < tetramino[2][0] && tetramino[1]+i < fieldY; ++i)
+        for(var i = 0, add_score = false; i < tetramino[2][0] && tetramino[1]+i < field_ng.height; ++i)
         {
             if(field_ng.isLineFilled(tetramino[1]+i))
             {
