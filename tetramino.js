@@ -7,10 +7,10 @@ var field = new Array(fieldY);
 for(var i=0; i< field.length; ++i)
     field[i] = new Array(fieldX);
 
-rows = document.getElementsByClassName("row");
+var rows = document.getElementsByClassName("row");
 for(var row = 0; row < rows.length; ++row)
 {
-    cells = rows[row].getElementsByClassName("cell");
+    var cells = rows[row].getElementsByClassName("cell");
     for(var cell = 0; cell < cells.length; ++cell)
     {
         field[row][cell] = cells[cell];
@@ -27,9 +27,24 @@ function clearField()
 
 var offsets =
     [
-        [[[0,0], [0,0], [0,0], [0,0], [0,0]], [[0,0], [1,0], [1,1], [0,-2], [1,-2]], [[0,0], [0,0], [0,0], [0,0], [0,0]], [[0,0], [-1,0], [-1,1], [0,-2], [-1,-2]]],
-        [[[0,0], [-1,0], [2,0], [-1,0], [2,0]], [[-1,0], [0,0], [0,0], [0, -1], [0, 2]], [[-1,-1], [1,-1], [-2,-1], [1,0], [-2,0]], [[0,-1], [0,-1], [0,-1], [0,1], [0,-2]]],
-        [[[0,0], [0,0], [0,0], [0,0], [0,0]], [[0,1], [0,1], [0,1], [0,1], [0,1]], [[-1,1], [-1,1], [-1,1], [-1,1], [-1,1]], [[-1,0], [-1,0], [-1,0], [-1,0], [-1,0]]]
+        [
+            [[0,0], [ 0,0], [ 0,0], [0, 0], [ 0, 0]],
+            [[0,0], [ 1,0], [ 1,1], [0,-2], [ 1,-2]],
+            [[0,0], [ 0,0], [ 0,0], [0, 0], [ 0, 0]],
+            [[0,0], [-1,0], [-1,1], [0,-2], [-1,-2]]
+        ],
+        [
+            [[ 0, 0], [-1, 0], [ 2, 0], [-1, 0], [ 2, 0]],
+            [[-1, 0], [ 0, 0], [ 0, 0], [ 0,-1], [ 0, 2]],
+            [[-1,-1], [ 1,-1], [-2,-1], [ 1, 0], [-2, 0]],
+            [[ 0,-1], [ 0,-1], [ 0,-1], [ 0, 1], [ 0,-2]]
+        ],
+        [
+            [[ 0,0], [ 0,0], [ 0,0], [ 0,0], [ 0,0]],
+            [[ 0,1], [ 0,1], [ 0,1], [ 0,1], [ 0,1]],
+            [[-1,1], [-1,1], [-1,1], [-1,1], [-1,1]],
+            [[-1,0], [-1,0], [-1,0], [-1,0], [-1,0]]
+        ]
     ];
 
 var tetraminos =
@@ -83,9 +98,9 @@ function shiftTM(direction)
 {
     switch(direction)
     {
-        case 'l': return updateTM(tetramino[0]-1, tetramino[1]); break;
-        case 'r': return updateTM(tetramino[0]+1, tetramino[1]); break;
-        case 'b': return updateTM(tetramino[0], tetramino[1]+1); break;
+        case 'l': return updateTM(tetramino[0]-1, tetramino[1]);
+        case 'r': return updateTM(tetramino[0]+1, tetramino[1]);
+        case 'b': return updateTM(tetramino[0], tetramino[1]+1);
     }
 }
 
