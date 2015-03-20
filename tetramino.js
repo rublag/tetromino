@@ -17,6 +17,103 @@ for(var row = 0; row < rows.length; ++row)
     }
 }
 
+function Field()
+{
+    this.width = 10;
+    this.height = 22;
+    var field = new Array(this.height);
+    for(var row = 0; row < this.height; ++row)
+        field[row] = new Array(this.width);
+
+    var rows = document.getElementsByClassName("row");
+    for(row = 0; row < this.height; ++row)
+    {
+        var cells = rows[row].getElementsByClassName("cell");
+        for(var cell = 0; cell < this.width; ++cell)
+        {
+            field[row][cell] = cells[cell];
+        }
+    }
+}
+
+Field.clear = function()
+{
+    for(var row = 0; row < this.height; ++row)
+        for(var cell = 0; cell < this.height; ++cell)
+            this.setColor(cell, row, "");
+};
+
+Field.setColor = function(x, y, color)
+{
+    field[y][x].style.backgroundColor = color;
+};
+
+Field.getColor = function(x, y)
+{
+    return field[y][x].style.backgroundColor;
+};
+
+Field.isClear = function(x, y)
+{
+    return !field[y][x].style.backgroundColor;
+};
+
+Field.isLineFilled = function(y)
+{
+    var allFilled = true;
+    for(var cell = 0; cell < this.width && allFilled; ++cell)
+    {
+        if(this.isClear(cell, y)) allFilled = false;
+    }
+    return allFilled;
+};
+
+Field.clearLine = function(y)
+{
+    for(var x = 0; i < this.width; ++x)
+    {
+        this.setColor(x, y, "");
+    }
+};
+
+Field.shiftLines = function(y)
+{
+    for(var line = y; line > 0; --line)
+    {
+        clearLine(line);
+        for(var cell = 0; cell < field[y].length; ++cell)
+            this.setColor(cell, line, this.getColor(cell, line-1));
+    }
+};
+
+function isLineFilled(y)
+{
+    var allFilled = true;
+    for(var i = 0; i < field[y].length && allFilled; ++i)
+    {
+        if(isClear(i, y)) allFilled = false;
+    }
+    return allFilled;
+}
+
+function clearLine(y)
+{
+    for(var i = 0; i < field[y].length; ++i)
+    {
+        setColor(i, y, "");
+    }
+}
+
+function shiftLines(y)
+{
+    for(var i = y; i > 0; --i)
+    {
+        clearLine(i);
+        for(var j = 0; j < field[y].length; ++j)
+            field[i][j].style.backgroundColor = field[i-1][j].style.backgroundColor;
+    }
+}
+
 function clearField()
 {
     for(var i = 0; i < field.length; ++i)
