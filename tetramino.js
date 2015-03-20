@@ -199,7 +199,7 @@ function lRotateTM()
 
 function createTM()
 {
-    var TMId = getRandomInt(0, 7);
+    var TMId = getRandomBlock();
     var xOffset = Math.round((fieldX-1)/2-tetraminos[TMId][1]/2);
     if(!hasCollisions(xOffset, 0, tetraminos[TMId]))
         insertTM(xOffset, 0, tetraminos[TMId], 0);
@@ -360,4 +360,27 @@ function switchState()
 {
     if(started) stop();
     else start();
+}
+
+var sequence = [];
+function getRandomBlock()
+{
+    if(!sequence.length)
+        sequence = generateBag();
+    var item = sequence.pop();
+    return item;
+}
+
+function generateBag()
+{
+    var bag_complete = false;
+    var item;
+    var bag = [];
+    while(bag.length < 7)
+    {
+        item = getRandomInt(0, 7);
+        if(bag.indexOf(item) == -1)
+            bag.push(item);
+    }
+    return bag.reverse();
 }
