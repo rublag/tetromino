@@ -34,57 +34,58 @@ function Field()
             field[row][cell] = cells[cell];
         }
     }
+
+    this.clear = function()
+    {
+        for(var row = 0; row < this.height; ++row)
+            for(var cell = 0; cell < this.height; ++cell)
+                this.setColor(cell, row, "");
+    };
+
+    this.setColor = function(x, y, color)
+    {
+        field[y][x].style.backgroundColor = color;
+    };
+
+    this.getColor = function(x, y)
+    {
+        return field[y][x].style.backgroundColor;
+    };
+
+    this.isClear = function(x, y)
+    {
+        return !field[y][x].style.backgroundColor;
+    };
+
+    this.isLineFilled = function(y)
+    {
+        var allFilled = true;
+        for(var cell = 0; cell < this.width && allFilled; ++cell)
+        {
+            if(this.isClear(cell, y)) allFilled = false;
+        }
+        return allFilled;
+    };
+
+    this.clearLine = function(y)
+    {
+        for(var x = 0; i < this.width; ++x)
+        {
+            this.setColor(x, y, "");
+        }
+    };
+
+    this.shiftLines = function(y)
+    {
+        for(var line = y; line > 0; --line)
+        {
+            this.clearLine(line);
+            for(var cell = 0; cell < field[y].length; ++cell)
+                this.setColor(cell, line, this.getColor(cell, line-1));
+        }
+    };
+
 }
-
-Field.clear = function()
-{
-    for(var row = 0; row < this.height; ++row)
-        for(var cell = 0; cell < this.height; ++cell)
-            this.setColor(cell, row, "");
-};
-
-Field.setColor = function(x, y, color)
-{
-    field[y][x].style.backgroundColor = color;
-};
-
-Field.getColor = function(x, y)
-{
-    return field[y][x].style.backgroundColor;
-};
-
-Field.isClear = function(x, y)
-{
-    return !field[y][x].style.backgroundColor;
-};
-
-Field.isLineFilled = function(y)
-{
-    var allFilled = true;
-    for(var cell = 0; cell < this.width && allFilled; ++cell)
-    {
-        if(this.isClear(cell, y)) allFilled = false;
-    }
-    return allFilled;
-};
-
-Field.clearLine = function(y)
-{
-    for(var x = 0; i < this.width; ++x)
-    {
-        this.setColor(x, y, "");
-    }
-};
-
-Field.shiftLines = function(y)
-{
-    for(var line = y; line > 0; --line)
-    {
-        clearLine(line);
-        for(var cell = 0; cell < field[y].length; ++cell)
-            this.setColor(cell, line, this.getColor(cell, line-1));
-    }
-};
 
 function isLineFilled(y)
 {
@@ -120,6 +121,8 @@ function clearField()
         for(var j = 0; j < field[i].length; ++j)
             setColor(j, i, "");
 }
+
+var field_ng = new Field();
 
 var offsetsHash = {
     usual: {
@@ -248,7 +251,7 @@ function insertTM(x, y, TM, state)
     for(var row = 0; row < TM[0]; ++row)
     {
         for(var cell = 0; cell < TM[2][row].length; ++cell)
-            setColor(x+TM[2][row][cell], y+row, TM[3]);
+            field_ng.setColor(x+TM[2][row][cell], y+row, TM[3]);
     }
     tetramino = [x, y, TM, state];
 }
@@ -261,7 +264,7 @@ function removeTM()
     for(var row = 0; row < TM[0]; ++row)
     {
         for(var cell = 0; cell < TM[2][row].length; ++cell)
-            setColor(x+TM[2][row][cell], y+row, "");
+            field_ng.setColor(x+TM[2][row][cell], y+row, "");
     }
 }
 
@@ -414,9 +417,9 @@ function fall()
     {
         for(var i = 0, add_score = false; i < tetramino[2][0] && tetramino[1]+i < fieldY; ++i)
         {
-            if(isLineFilled(tetramino[1]+i))
+            if(field_ng.isLineFilled(tetramino[1]+i))
             {
-                shiftLines(tetramino[1]+i);
+                field_ng.shiftLines(tetramino[1]+i);
                 add_score = true;
             }
         }
@@ -446,7 +449,7 @@ var ival = 0;
 function start()
 {
     delay = 1000;
-    clearField();
+    field_ng.clear();
     createTM();
     ival = setInterval(fall, delay);
     started = true;
