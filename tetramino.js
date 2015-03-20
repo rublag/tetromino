@@ -46,6 +46,71 @@ var offsetsHash = {
     }
 };
 
+var tetrominoes = {
+    O: {
+        side: 3,
+        rows: 3,
+        columns: 3,
+        color: "yellow",
+        offsets: offsetsHash.O,
+        model: [[1, 2], [1, 2], []]
+    },
+    I: {
+        side: 5,
+        rows: 5,
+        columns: 5,
+        color: "cyan",
+        offsets: offsetsHash.I,
+        model: [[], [], [1, 2, 3, 4],[],[]]
+    },
+    T: {
+        side: 3,
+        rows: 3,
+        columns: 3,
+        color: "purple",
+        offsets: offsetsHash.usual,
+        model: [[1], [0, 1, 2], []]
+    },
+    J: {
+        side: 3,
+        rows: 3,
+        columns: 3,
+        color: "blue",
+        offsets: offsetsHash.usual,
+        model: [[0], [0, 1, 2], []]
+    },
+    L: {
+        side: 3,
+        rows: 3,
+        columns: 3,
+        color: "orange",
+        offsets: offsetsHash.usual,
+        model: [[2], [0, 1, 2], []]
+    },
+    S: {
+        side: 3,
+        rows: 3,
+        columns: 3,
+        color: "green",
+        offsets: offsetsHash.usual,
+        model: [[1, 2], [0, 1], []]
+    },
+    Z: {
+        side: 3,
+        rows: 3,
+        columns: 3,
+        color: "red",
+        offsets: offsetsHash.usual,
+        model: [[0, 1], [1, 2], []]
+    }
+};
+
+function Block(type)
+{
+    this.type = type;
+    this.tetromino = Object.create(tetrominoes[type]);
+}
+
 var offsets =
     [
         [
@@ -243,34 +308,6 @@ function shift(direction)
     {
         case 'l': shiftTM('l'); break;
         case 'r': shiftTM('r'); break;
-    }
-}
-
-function isLineFilled(y)
-{
-    var allFilled = true;
-    for(var i = 0; i < field[y].length && allFilled; ++i)
-    {
-        if(isClear(i, y)) allFilled = false;
-    }
-    return allFilled;
-}
-
-function clearLine(y)
-{
-    for(var i = 0; i < field[y].length; ++i)
-    {
-        setColor(i, y, "");
-    }
-}
-
-function shiftLines(y)
-{
-    for(var i = y; i > 0; --i)
-    {
-        clearLine(i);
-        for(var j = 0; j < field[y].length; ++j)
-            field[i][j].style.backgroundColor = field[i-1][j].style.backgroundColor;
     }
 }
 
