@@ -165,7 +165,7 @@ function rRotateTM()
     var newState = tetramino[3]===3?0:tetramino[3]+1;
     var rotated = rRotatedTM(tetramino[2], newState);
     var offset;
-    if(offset = getOffset(x, y, rotated, TM, tetramino[3], newState))
+    if( (offset = getOffset(x, y, rotated, TM, tetramino[3], newState)) )
         insertTM(x + offset[0], y + offset[1], rotated, newState);
     else insertTM(x, y, TM, tetramino[3]);
 }
@@ -192,7 +192,7 @@ function lRotateTM()
     var rotated = lRotatedTM(tetramino[2], newState);
     var offset;
 
-    if(offset = getOffset(x, y, rotated, TM, tetramino[3], newState))
+    if( (offset = getOffset(x, y, rotated, TM, tetramino[3], newState)) )
         insertTM(x + offset[0], y + offset[1], rotated, newState);
     else insertTM(x, y, TM);
 }
@@ -367,19 +367,17 @@ function getRandomBlock()
 {
     if(!sequence.length)
         sequence = generateBag();
-    var item = sequence.pop();
-    return item;
+    return sequence.pop();
 }
 
 function generateBag()
 {
-    var bag_complete = false;
     var item;
     var bag = [];
     while(bag.length < 7)
     {
         item = getRandomInt(0, 7);
-        if(bag.indexOf(item) == -1)
+        if(bag.indexOf(item) === -1)
             bag.push(item);
     }
     return bag.reverse();
