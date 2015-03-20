@@ -72,7 +72,7 @@ function Field()
 
 }
 
-var field_ng = new Field();
+var field = new Field();
 
 var offsetsHash = {
     usual: {
@@ -201,7 +201,7 @@ function insertTM(x, y, TM, state)
     for(var row = 0; row < TM[0]; ++row)
     {
         for(var cell = 0; cell < TM[2][row].length; ++cell)
-            field_ng.setColor(x+TM[2][row][cell], y+row, TM[3]);
+            field.setColor(x+TM[2][row][cell], y+row, TM[3]);
     }
     tetramino = [x, y, TM, state];
 }
@@ -214,7 +214,7 @@ function removeTM()
     for(var row = 0; row < TM[0]; ++row)
     {
         for(var cell = 0; cell < TM[2][row].length; ++cell)
-            field_ng.setColor(x+TM[2][row][cell], y+row, "");
+            field.setColor(x+TM[2][row][cell], y+row, "");
     }
 }
 
@@ -247,12 +247,12 @@ function hasCollisions(TMx, TMy, TM)
     {
         for(var x = 0; clear && x < TM[2][y].length; ++x)
         {
-            if(TMx+TM[2][y][x] > field_ng.width-1 || TMy+y > field_ng.height-1 || TMx+TM[2][y][x] < 0 || TMy+y < 0)
+            if(TMx+TM[2][y][x] > field.width-1 || TMy+y > field.height-1 || TMx+TM[2][y][x] < 0 || TMy+y < 0)
             {
                 clear = false;
                 break;
             }
-            clear = field_ng.isClear(TMx+TM[2][y][x], TMy+y);
+            clear = field.isClear(TMx+TM[2][y][x], TMy+y);
         }
     }
     return !clear;
@@ -336,7 +336,7 @@ function lRotateTM()
 function createTM()
 {
     var TMId = getRandomBlock();
-    var xOffset = Math.round((field_ng.width-1)/2-tetraminos[TMId][1]/2);
+    var xOffset = Math.round((field.width-1)/2-tetraminos[TMId][1]/2);
     if(!hasCollisions(xOffset, 0, tetraminos[TMId]))
         insertTM(xOffset, 0, tetraminos[TMId], 0);
     else stop();
@@ -355,11 +355,11 @@ function fall()
 {
     if(!shiftTM('b'))
     {
-        for(var i = 0, add_score = false; i < tetramino[2][0] && tetramino[1]+i < field_ng.height; ++i)
+        for(var i = 0, add_score = false; i < tetramino[2][0] && tetramino[1]+i < field.height; ++i)
         {
-            if(field_ng.isLineFilled(tetramino[1]+i))
+            if(field.isLineFilled(tetramino[1]+i))
             {
-                field_ng.shiftLines(tetramino[1]+i);
+                field.shiftLines(tetramino[1]+i);
                 add_score = true;
             }
         }
@@ -389,7 +389,7 @@ var ival = 0;
 function start()
 {
     delay = 1000;
-    field_ng.clear();
+    field.clear();
     createTM();
     ival = setInterval(fall, delay);
     started = true;
