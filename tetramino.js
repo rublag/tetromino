@@ -1,10 +1,10 @@
 /**
  * Created by user on 14.03.2015.
  */
-fieldX = 10;
-fieldY = 22;
-field = new Array(fieldY);
-for(i=0; i< field.length; ++i)
+var fieldX = 10;
+var fieldY = 22;
+var field = new Array(fieldY);
+for(var i=0; i< field.length; ++i)
     field[i] = new Array(fieldX);
 
 rows = document.getElementsByClassName("row");
@@ -107,7 +107,7 @@ function hasCollisions(TMx, TMy, TM)
     return !clear;
 }
 
-function rRotatedTM(TM, state)
+function rRotatedTM(TM)
 {
     var TMArray = new Array(TM[1]);
     for(var i = 0; i < TMArray.length; ++i)
@@ -118,13 +118,13 @@ function rRotatedTM(TM, state)
     {
         for(var cell = 0; cell < TM[2][row].length; ++cell)
         {
-            TMArray[ TM[2][row][cell]].push(TM[2].length-1-row)
+            TMArray[ TM[2][row][cell]].push(TM[2].length-1-row);
         }
     }
     return [TM[1], TM[0], TMArray, TM[3], TM[4]];
 }
 
-function lRotatedTM(TM, state)
+function lRotatedTM(TM)
 {
     var TMArray = new Array(TM[1]);
     for(var i = 0; i < TMArray.length; ++i)
@@ -135,7 +135,7 @@ function lRotatedTM(TM, state)
     {
         for(var cell = 0; cell < TM[2][row].length; ++cell)
         {
-            TMArray[ TM[1]-TM[2][row][cell]-1 ].push(row)
+            TMArray[ TM[1]-TM[2][row][cell]-1 ].push(row);
         }
     }
     return [TM[1], TM[0], TMArray, TM[3], TM[4]];
@@ -147,7 +147,7 @@ function rRotateTM()
     var y = tetramino[1];
     var TM = tetramino[2];
     removeTM();
-    var newState = tetramino[3]==3?0:tetramino[3]+1;
+    var newState = tetramino[3]===3?0:tetramino[3]+1;
     var rotated = rRotatedTM(tetramino[2], newState);
     var offset;
     if(offset = getOffset(x, y, rotated, TM, tetramino[3], newState))
@@ -182,22 +182,6 @@ function lRotateTM()
     else insertTM(x, y, TM);
 }
 
-function TMToMask(TM)
-{
-    var mask = new Array(TM[0]);
-    for(var i = 0; i < mask.length; ++i)
-        mask[i] = new Array(TM[1]);
-
-    for(var row = 0; row < TM[2].length; ++row)
-    {
-        for(var cell = 0; cell < TM[2][row].length; ++cell)
-        {
-            mask[row][ TM[row][cell] ] = 1;
-        }
-    }
-    return [TM[0], TM[1], mask];
-}
-
 function createTM()
 {
     var TMId = getRandomInt(0, 7);
@@ -212,42 +196,9 @@ function setColor(x, y, color)
     field[y][x].style.backgroundColor = color;
 }
 
-function atEdges()
-{
-    var edges = new Array(4);
-    edges[0] = tetramino[1] == 0;
-    edges[1] = tetramino[0] == 0;
-    edges[2] = tetramino[0]+tetramino[2][1]-1 == 9;
-    edges[3] = tetramino[1]+tetramino[2][0]-1 == 19;
-    return edges;
-}
-
 function isClear(x, y)
 {
-    return !field[y][x].style.backgroundColor
-}
-
-function hasObstacles(direction)
-{
-    var x = tetramino[0];
-    var y = tetramino[1];
-    var clear = true;
-    switch(direction)
-    {
-        case 'l':
-            for(var row = 0; row < tetramino[2][0] && clear; ++row) clear = isClear(x+tetramino[2][2][row][0]-1, y+row);
-            return !clear;
-            break;
-        case 'r':
-            for(var row = 0; row < tetramino[2][0] && clear; ++row) clear = isClear(x+tetramino[2][2][row][tetramino[2][2][row].length-1]+1, y+row);
-            return !clear;
-            break;
-        case 'b':
-            for(var cell = 0; cell < tetramino[2][2][tetramino[2][0]-1].length && clear; ++cell) clear = isClear(x+tetramino[2][2][tetramino[2][0]-1][cell], y+tetramino[2][0]);
-            return !clear;
-            break;
-        default: return true; break;
-    }
+    return !field[y][x].style.backgroundColor;
 }
 
 function shift(direction)
@@ -266,7 +217,7 @@ function isLineFilled(y)
     {
         if(isClear(i, y)) allFilled = false;
     }
-    return allFilled
+    return allFilled;
 }
 
 function clearLine(y)
@@ -282,7 +233,8 @@ function shiftLines(y)
     for(var i = y; i > 0; --i)
     {
         clearLine(i);
-        for(var j = 0; j < field[y].length; ++j) field[i][j].style.backgroundColor = field[i-1][j].style.backgroundColor;
+        for(var j = 0; j < field[y].length; ++j)
+            field[i][j].style.backgroundColor = field[i-1][j].style.backgroundColor;
     }
 }
 
@@ -331,7 +283,7 @@ function start()
     document.game_controls.start_button.disabled = true;
     document.game_controls.pause_button.disabled = false;
     document.game_controls.stop_button.disabled = false;
-    document.game_controls.pause_button.textContent = "Pause"
+    document.game_controls.pause_button.textContent = "Pause";
 }
 
 function stop()
