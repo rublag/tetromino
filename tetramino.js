@@ -158,7 +158,6 @@ function Block(type, field)
 {
     this.field = field;
     this.states = ['T', 'R', 'B', 'L'];
-    this.type = type;
     this.tetromino = Object.create(tetrominoes[type]);
 
     this.rows = this.tetromino.rows; this.columns = this.tetromino.columns;
