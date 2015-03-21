@@ -70,6 +70,17 @@ function Field()
         }
     };
 
+    this.shift = function(direction)
+    {
+        switch(direction)
+        {
+            case 'l': return this.update(this.x-1, this.y);
+            case 'r': return this.update(this.x+1, this.y);
+            case 'b': return this.update(this.x, this.y+1);
+        }
+    };
+
+
 }
 
 var field = new Field();
@@ -157,8 +168,175 @@ var tetrominoes = {
 
 function Block(type)
 {
+    this.states = ['T', 'R', 'B', 'L'];
     this.type = type;
     this.tetromino = Object.create(tetrominoes[type]);
+
+    this.x = 0; this.y = 0; this.state = 0;
+
+    this.insert = function(x, y)
+    {
+        for(var row = 0; row < this.tetromino.rows; ++row)
+        {
+            for(var cell = 0; cell < this.model[row].length; ++cell)
+                field.setColor(x+this.model[row][cell], y+row, this.tetromino.color);
+        }
+        this.x = x;
+        this.y = y;
+    };
+
+    this.remove = function()
+    {
+        for(var row = 0; row < this.tetromino.rows; ++row)
+        {
+            for(var cell = 0; cell < this.model[row].length; ++cell)
+                field.setColor(this.x+this.model[row][cell], this.y+row, "");
+        }
+    };
+
+    this.update = function(x, y)
+    {
+        this.remove();
+        if(!hasCollisions(x, y, this.model))
+        {
+            this.insert(x, y);
+            return true;
+        }
+        else this.insert(this.x, this.y);
+        return false;
+    };
+
+    this.hasCollisions = function(x, y, model)
+    {
+        var clear = true;
+        for(var row = 0; clear && row < model.length; ++row)
+        {
+            for(var cell = 0; clear && cell < model[row].length; ++cell)
+            {
+                if(x+model[row][cell] > field.width-1 || y+row > field.height-1 || x+model[row][cell] < 0 || y+row < 0)
+                {
+                    clear = false;
+                    break;
+                }
+                clear = field.isClear(x+model[row][cell], y+row);
+            }
+        }
+        return !clear;
+    };
+
+    this.getOffset = function(rotated, state)
+    {
+        var ox = 0, oy = 0;
+        for(var i=0; i < this.tetromino.offsets[this.state].length; ++i)
+        {
+            ox = this.tetromino.offsets[this.state][i][0] - this.tetromino.states[state][i][0];
+            oy = this.tetromino.offsets[this.state][i][1] - this.tetromino.states[state][i][1];
+            if(!hasCollisions(this.x+ox, this.y+oy, rotated)) return [ox, oy];
+        }
+        return false;
+    };
+
+    this.rightRotated = function()
+    {
+        var rotated = new Array(this.tetromino.columns);
+        for(var row = 0; row < rotated.length; ++row)
+        {
+            rotated[row] = [];
+        }
+        for(row = 0; row < this.tetromino.rows; ++row)
+        {
+            for(var cell = 0; cell < this.model[row].length; ++cell)
+            {
+                rotated[ this.model[row][cell] ].push(this.tetromino.length-1-row);
+            }
+        }
+        return {
+            rows: this.tetromino.columns,
+            columns: this.tetromino.rows,
+            model: rotated
+        };
+    };
+    
+    this.leftRotated = function()
+    {
+        var rotated = new Array(this.tetromino.columns);
+        for(var row = 0; row < rotated.length; ++row)
+        {
+            rotated[row] = [];
+        }
+        for(row = 0; row < this.tetromino.rows; ++row)
+        {
+            for(var cell = 0; cell < this.model[row].length; ++cell)
+            {
+                rotated[ this.tetromino.columns-this.model[row][cell]-1 ].push(row);
+            }
+        }
+        return {
+            rows: this.tetromino.columns,
+            columns: this.tetromino.rows,
+            model: rotated
+        };
+    };
+
+    this.nextState = function(direction)
+    {
+        var state = this.states.indexOf(this.state);
+        switch(direction)
+        {
+            case 'l':
+                if(state === 0) return this.states[this.states.length-1];
+                else return this.state[state-1]; break;
+            case 'r':
+                if(state === this.states.length-1) return this.states[0];
+                else return this.states[state+1];
+        }
+    };
+
+    this.rotateRight = function()
+    {
+        removeTM();
+        var newState = this.nextState('r');
+        var rotated = this.rightRotated();
+        var offset;
+        if( (offset = getOffset(this.x, this.y, rotated, newState)) )
+        {
+            this.state = newState;
+            this.model = rotated;
+            this.insert(this.x + offset[0], this.y + offset[1]);
+        }
+        else
+        {
+            this.insert(this.x, this.y);
+        }
+    };
+
+    this.rotateLeft = function()
+    {
+        removeTM();
+        var newState = this.nextState('l');
+        var rotated = this.leftRotated();
+        var offset;
+        if( (offset = getOffset(this.x, this.y, rotated, newState)) )
+        {
+            this.state = newState;
+            this.model = rotated;
+            this.insert(this.x + offset[0], this.y + offset[1]);
+        }
+        else this.insert(this.x, this.y);
+    };
+
+    this.spawn = function()
+    {
+        var TMId = getRandomBlock();
+        var xOffset = Math.round((field.width-1)/2-tetraminos[TMId][1]/2);
+        if(!this.hasCollisions(xOffset, 0, this.model))
+        {
+            this.model = this.tetromino.model;
+            insertTM(xOffset, 0);
+            return true;
+        }
+        else stop();
+    };
 }
 
 var offsets =
