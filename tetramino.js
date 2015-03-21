@@ -6,9 +6,9 @@ function Field()
 {
     this.width = 10;
     this.height = 22;
-    var field = new Array(this.height);
+    this.field = new Array(this.height);
     for(var row = 0; row < this.height; ++row)
-        field[row] = new Array(this.width);
+        this.field[row] = new Array(this.width);
 
     var rows = document.getElementsByClassName("row");
     for(row = 0; row < this.height; ++row)
@@ -16,30 +16,30 @@ function Field()
         var cells = rows[row].getElementsByClassName("cell");
         for(var cell = 0; cell < this.width; ++cell)
         {
-            field[row][cell] = cells[cell];
+            this.field[row][cell] = cells[cell];
         }
     }
 
     this.clear = function()
     {
         for(var row = 0; row < this.height; ++row)
-            for(var cell = 0; cell < this.height; ++cell)
+            for(var cell = 0; cell < this.width; ++cell)
                 this.setColor(cell, row, "");
     };
 
     this.setColor = function(x, y, color)
     {
-        field[y][x].style.backgroundColor = color;
+        this.field[y][x].style.backgroundColor = color;
     };
 
     this.getColor = function(x, y)
     {
-        return field[y][x].style.backgroundColor;
+        return this.field[y][x].style.backgroundColor;
     };
 
     this.isClear = function(x, y)
     {
-        return !field[y][x].style.backgroundColor;
+        return !this.field[y][x].style.backgroundColor;
     };
 
     this.isLineFilled = function(y)
@@ -65,22 +65,10 @@ function Field()
         for(var line = y; line > 0; --line)
         {
             this.clearLine(line);
-            for(var cell = 0; cell < field[y].length; ++cell)
+            for(var cell = 0; cell < this.field[y].length; ++cell)
                 this.setColor(cell, line, this.getColor(cell, line-1));
         }
     };
-
-    this.shift = function(direction)
-    {
-        switch(direction)
-        {
-            case 'l': return this.update(this.x-1, this.y);
-            case 'r': return this.update(this.x+1, this.y);
-            case 'b': return this.update(this.x, this.y+1);
-        }
-    };
-
-
 }
 
 var field = new Field();
@@ -91,7 +79,7 @@ var offsetsHash = {
         T: [[0,0], [ 0,0], [ 0,0], [0, 0], [ 0, 0]],
         R: [[0,0], [ 1,0], [ 1,1], [0,-2], [ 1,-2]],
         B: [[0,0], [ 0,0], [ 0,0], [0, 0], [ 0, 0]],
-        L: [[0,0], [ 0,0], [ 0,0], [0, 0], [ 0, 0]]
+        L: [[0,0], [-1,0], [-1,1], [0,-2], [-1,-2]]
     },
     I: {
         T: [[ 0, 0], [-1, 0], [ 2, 0], [-1, 0], [ 2, 0]],
@@ -166,20 +154,22 @@ var tetrominoes = {
     }
 };
 
-function Block(type)
+function Block(type, field)
 {
+    this.field = field;
     this.states = ['T', 'R', 'B', 'L'];
     this.type = type;
     this.tetromino = Object.create(tetrominoes[type]);
 
-    this.x = 0; this.y = 0; this.state = 0;
+    this.rows = this.tetromino.rows; this.columns = this.tetromino.columns;
+    this.x = 0; this.y = 0; this.state = this.states[0];
 
     this.insert = function(x, y)
     {
         for(var row = 0; row < this.tetromino.rows; ++row)
         {
             for(var cell = 0; cell < this.model[row].length; ++cell)
-                field.setColor(x+this.model[row][cell], y+row, this.tetromino.color);
+                this.field.setColor(x+this.model[row][cell], y+row, this.tetromino.color);
         }
         this.x = x;
         this.y = y;
@@ -190,14 +180,14 @@ function Block(type)
         for(var row = 0; row < this.tetromino.rows; ++row)
         {
             for(var cell = 0; cell < this.model[row].length; ++cell)
-                field.setColor(this.x+this.model[row][cell], this.y+row, "");
+                this.field.setColor(this.x+this.model[row][cell], this.y+row, "");
         }
     };
 
     this.update = function(x, y)
     {
         this.remove();
-        if(!hasCollisions(x, y, this.model))
+        if(!this.hasCollisions(x, y, this.model))
         {
             this.insert(x, y);
             return true;
@@ -213,12 +203,12 @@ function Block(type)
         {
             for(var cell = 0; clear && cell < model[row].length; ++cell)
             {
-                if(x+model[row][cell] > field.width-1 || y+row > field.height-1 || x+model[row][cell] < 0 || y+row < 0)
+                if(x+model[row][cell] > this.field.width-1 || y+row > this.field.height-1 || x+model[row][cell] < 0 || y+row < 0)
                 {
                     clear = false;
                     break;
                 }
-                clear = field.isClear(x+model[row][cell], y+row);
+                clear = this.field.isClear(x+model[row][cell], y+row);
             }
         }
         return !clear;
@@ -229,9 +219,9 @@ function Block(type)
         var ox = 0, oy = 0;
         for(var i=0; i < this.tetromino.offsets[this.state].length; ++i)
         {
-            ox = this.tetromino.offsets[this.state][i][0] - this.tetromino.states[state][i][0];
-            oy = this.tetromino.offsets[this.state][i][1] - this.tetromino.states[state][i][1];
-            if(!hasCollisions(this.x+ox, this.y+oy, rotated)) return [ox, oy];
+            ox = this.tetromino.offsets[this.state][i][0] - this.tetromino.offsets[state][i][0];
+            oy = this.tetromino.offsets[this.state][i][1] - this.tetromino.offsets[state][i][1];
+            if(!this.hasCollisions(this.x+ox, this.y+oy, rotated)) return [ox, oy];
         }
         return false;
     };
@@ -247,14 +237,12 @@ function Block(type)
         {
             for(var cell = 0; cell < this.model[row].length; ++cell)
             {
-                rotated[ this.model[row][cell] ].push(this.tetromino.length-1-row);
+                rotated[ this.model[row][cell] ].push(this.model.length-1-row);
             }
         }
-        return {
-            rows: this.tetromino.columns,
-            columns: this.tetromino.rows,
-            model: rotated
-        };
+        this.rows = this.columns;
+        this.columns = this.rows;
+        return rotated;
     };
     
     this.leftRotated = function()
@@ -271,11 +259,9 @@ function Block(type)
                 rotated[ this.tetromino.columns-this.model[row][cell]-1 ].push(row);
             }
         }
-        return {
-            rows: this.tetromino.columns,
-            columns: this.tetromino.rows,
-            model: rotated
-        };
+        this.rows = this.columns;
+        this.columns = this.rows;
+        return rotated;
     };
 
     this.nextState = function(direction)
@@ -285,7 +271,7 @@ function Block(type)
         {
             case 'l':
                 if(state === 0) return this.states[this.states.length-1];
-                else return this.state[state-1]; break;
+                else return this.states[state-1]; break;
             case 'r':
                 if(state === this.states.length-1) return this.states[0];
                 else return this.states[state+1];
@@ -294,11 +280,11 @@ function Block(type)
 
     this.rotateRight = function()
     {
-        removeTM();
+        this.remove();
         var newState = this.nextState('r');
         var rotated = this.rightRotated();
         var offset;
-        if( (offset = getOffset(this.x, this.y, rotated, newState)) )
+        if( (offset = this.getOffset(rotated, newState)) )
         {
             this.state = newState;
             this.model = rotated;
@@ -312,11 +298,11 @@ function Block(type)
 
     this.rotateLeft = function()
     {
-        removeTM();
+        this.remove();
         var newState = this.nextState('l');
         var rotated = this.leftRotated();
         var offset;
-        if( (offset = getOffset(this.x, this.y, rotated, newState)) )
+        if( (offset = this.getOffset(rotated, newState)) )
         {
             this.state = newState;
             this.model = rotated;
@@ -327,15 +313,24 @@ function Block(type)
 
     this.spawn = function()
     {
-        var TMId = getRandomBlock();
-        var xOffset = Math.round((field.width-1)/2-tetraminos[TMId][1]/2);
+        var xOffset = Math.round((this.field.width-1)/2-this.tetromino.columns/2);
+        this.model = this.tetromino.model;
         if(!this.hasCollisions(xOffset, 0, this.model))
         {
-            this.model = this.tetromino.model;
-            insertTM(xOffset, 0);
+            this.insert(xOffset, 0);
             return true;
         }
-        else stop();
+        else return false;
+    };
+
+    this.shift = function(direction)
+    {
+        switch(direction)
+        {
+            case 'l': return this.update(this.x-1, this.y);
+            case 'r': return this.update(this.x+1, this.y);
+            case 'b': return this.update(this.x, this.y+1);
+        }
     };
 }
 
@@ -520,6 +515,16 @@ function createTM()
     else stop();
 }
 
+var block;
+
+function create_ng()
+{
+    var TMId = getRandomBlock();
+    var blocks = ['I', 'O', 'S', 'Z', 'T', 'J', 'L'];
+    block = new Block(blocks[TMId], field);
+    if(!block.spawn()) stop();
+}
+
 function shift(direction)
 {
     switch(direction)
@@ -552,11 +557,34 @@ function fall()
     }
 }
 
+function fall_ng()
+{
+    if(!block.shift('b'))
+    {
+        for(var i = 0, add_score = false; i < block.tetromino.rows && block.y+i < field.height; ++i)
+        {
+            if(field.isLineFilled(block.y+i))
+            {
+                field.shiftLines(block.y+i);
+                add_score = true;
+            }
+        }
+        create_ng();
+        if(add_score) score += 1;
+        if(score >= 5)
+        {
+            delay -= 20;
+            change_speed();
+            score = 0;
+        }
+    }
+}
+
 var score = 0;
 function change_speed()
 {
     clearInterval(ival);
-    ival = setInterval(fall, delay);
+    ival = setInterval(fall_ng(), delay);
 }
 
 var delay = 200;
@@ -568,8 +596,8 @@ function start()
 {
     delay = 1000;
     field.clear();
-    createTM();
-    ival = setInterval(fall, delay);
+    create_ng();
+    ival = setInterval(fall_ng, delay);
     started = true;
     document.game_controls.start_button.disabled = true;
     document.game_controls.pause_button.disabled = false;
@@ -592,8 +620,8 @@ function switchPause()
     if(!started) return false;
     if(paused)
     {
-        fall();
-        ival = setInterval(fall, delay);
+        fall_ng();
+        ival = setInterval(fall_ng, delay);
         paused = false;
         document.game_controls.pause_button.textContent="Pause";
     }
@@ -622,11 +650,11 @@ function rotate(direction)
 document.addEventListener('keydown', function(event)
 {
     switch (event.keyCode) {
-        case "Q".charCodeAt(0): if(started && !paused) rotate('l'); break;
-        case "E".charCodeAt(0): if(started && !paused) rotate('r'); break;
-        case "A".charCodeAt(0): if(started && !paused) shift('l'); break;
-        case "D".charCodeAt(0): if(started && !paused) shift('r'); break;
-        case "S".charCodeAt(0): if(started && !paused) fall(); break;
+        case "Q".charCodeAt(0): if(started && !paused) block.rotateLeft(); break;
+        case "E".charCodeAt(0): if(started && !paused) block.rotateRight(); break;
+        case "A".charCodeAt(0): if(started && !paused) block.shift('l'); break;
+        case "D".charCodeAt(0): if(started && !paused) block.shift('r'); break;
+        case "S".charCodeAt(0): if(started && !paused) fall_ng(); break;
         case 13: switchState(); break;
         case 32: switchPause(); break;
     }
