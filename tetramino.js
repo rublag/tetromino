@@ -8,7 +8,9 @@ function Field()
     this.height = 22;
     this.field = new Array(this.height);
     for(var row = 0; row < this.height; ++row)
+    {
         this.field[row] = new Array(this.width);
+    }
 
     var rows = document.getElementsByClassName("row");
     for(row = 0; row < this.height; ++row)
@@ -23,8 +25,12 @@ function Field()
     this.clear = function()
     {
         for(var row = 0; row < this.height; ++row)
-            for(var cell = 0; cell < this.width; ++cell)
+        {
+            for (var cell = 0; cell < this.width; ++cell)
+            {
                 this.setColor(cell, row, "");
+            }
+        }
     };
 
     this.setColor = function(x, y, color)
@@ -47,7 +53,10 @@ function Field()
         var allFilled = true;
         for(var cell = 0; cell < this.width && allFilled; ++cell)
         {
-            if(this.isClear(cell, y)) allFilled = false;
+            if(this.isClear(cell, y))
+            {
+                allFilled = false;
+            }
         }
         return allFilled;
     };
@@ -66,7 +75,9 @@ function Field()
         {
             this.clearLine(line);
             for(var cell = 0; cell < this.field[y].length; ++cell)
-                this.setColor(cell, line, this.getColor(cell, line-1));
+            {
+                this.setColor(cell, line, this.getColor(cell, line - 1));
+            }
         }
     };
 }
@@ -168,7 +179,9 @@ function Block(type, field)
         for(var row = 0; row < this.tetromino.rows; ++row)
         {
             for(var cell = 0; cell < this.model[row].length; ++cell)
-                this.field.setColor(x+this.model[row][cell], y+row, this.tetromino.color);
+            {
+                this.field.setColor(x + this.model[row][cell], y + row, this.tetromino.color);
+            }
         }
         this.x = x;
         this.y = y;
@@ -179,7 +192,9 @@ function Block(type, field)
         for(var row = 0; row < this.tetromino.rows; ++row)
         {
             for(var cell = 0; cell < this.model[row].length; ++cell)
-                this.field.setColor(this.x+this.model[row][cell], this.y+row, "");
+            {
+                this.field.setColor(this.x + this.model[row][cell], this.y + row, "");
+            }
         }
     };
 
@@ -191,7 +206,10 @@ function Block(type, field)
             this.insert(x, y);
             return true;
         }
-        else this.insert(this.x, this.y);
+        else
+        {
+            this.insert(this.x, this.y);
+        }
         return false;
     };
 
@@ -220,7 +238,10 @@ function Block(type, field)
         {
             ox = this.tetromino.offsets[this.state][i][0] - this.tetromino.offsets[state][i][0];
             oy = this.tetromino.offsets[this.state][i][1] - this.tetromino.offsets[state][i][1];
-            if(!this.hasCollisions(this.x+ox, this.y+oy, rotated)) return [ox, oy];
+            if(!this.hasCollisions(this.x+ox, this.y+oy, rotated))
+            {
+                return [ox, oy];
+            }
         }
         return false;
     };
@@ -269,11 +290,23 @@ function Block(type, field)
         switch(direction)
         {
             case 'l':
-                if(state === 0) return this.states[this.states.length-1];
-                else return this.states[state-1]; break;
+                if(state === 0)
+                {
+                    return this.states[this.states.length-1];
+                }
+                else
+                {
+                    return this.states[state-1];
+                } break;
             case 'r':
-                if(state === this.states.length-1) return this.states[0];
-                else return this.states[state+1];
+                if(state === this.states.length-1)
+                {
+                    return this.states[0];
+                }
+                else
+                {
+                    return this.states[state+1];
+                }
         }
     };
 
@@ -281,7 +314,7 @@ function Block(type, field)
     {
         var newState = this.nextState('r');
         var rotated = this.rightRotated();
-        this.rotate(newState, rotated)
+        this.rotate(newState, rotated);
     };
 
     this.rotate = function(newState, rotated)
@@ -294,14 +327,17 @@ function Block(type, field)
             this.model = rotated;
             this.insert(this.x + offset[0], this.y + offset[1]);
         }
-        else this.insert(this.x, this.y);
+        else
+        {
+            this.insert(this.x, this.y);
+        }
     };
 
     this.rotateLeft = function()
     {
         var newState = this.nextState('l');
         var rotated = this.leftRotated();
-        this.rotate(newState, rotated)
+        this.rotate(newState, rotated);
     };
 
     this.spawn = function()
@@ -313,7 +349,10 @@ function Block(type, field)
             this.insert(xOffset, 0);
             return true;
         }
-        else return false;
+        else
+        {
+            return false;
+        }
     };
 
     this.shift = function(direction)
@@ -328,13 +367,18 @@ function Block(type, field)
 }
 
 var block;
+var score = 0;
+var delay = 200;
 
 function create_ng()
 {
     var TMId = getRandomBlock();
     var blocks = ['I', 'O', 'S', 'Z', 'T', 'J', 'L'];
     block = new Block(blocks[TMId], field);
-    if(!block.spawn()) stop();
+    if(!block.spawn())
+    {
+        stop();
+    }
 }
 
 function fall_ng()
@@ -350,7 +394,10 @@ function fall_ng()
             }
         }
         create_ng();
-        if(add_score) score += 1;
+        if(add_score)
+        {
+            score += 1;
+        }
         if(score >= 5)
         {
             delay -= 20;
@@ -360,18 +407,16 @@ function fall_ng()
     }
 }
 
-var score = 0;
+var ival = 0;
+
 function change_speed()
 {
     clearInterval(ival);
     ival = setInterval(fall_ng(), delay);
 }
 
-var delay = 200;
-
 var paused = false;
 var started = false;
-var ival = 0;
 function start()
 {
     delay = 1000;
@@ -397,7 +442,10 @@ function stop()
 
 function switchPause()
 {
-    if(!started) return false;
+    if(!started)
+    {
+        return false;
+    }
     if(paused)
     {
         fall_ng();
@@ -421,11 +469,31 @@ function getRandomInt(min, max)
 document.addEventListener('keydown', function(event)
 {
     switch (event.keyCode) {
-        case "Q".charCodeAt(0): if(started && !paused) block.rotateLeft(); break;
-        case "E".charCodeAt(0): if(started && !paused) block.rotateRight(); break;
-        case "A".charCodeAt(0): if(started && !paused) block.shift('l'); break;
-        case "D".charCodeAt(0): if(started && !paused) block.shift('r'); break;
-        case "S".charCodeAt(0): if(started && !paused) fall_ng(); break;
+        case "Q".charCodeAt(0):
+            if(started && !paused)
+            {
+                block.rotateLeft();
+            } break;
+        case "E".charCodeAt(0):
+            if(started && !paused)
+            {
+                block.rotateRight();
+            } break;
+        case "A".charCodeAt(0):
+            if(started && !paused)
+            {
+                block.shift('l');
+            } break;
+        case "D".charCodeAt(0):
+            if(started && !paused)
+            {
+                block.shift('r');
+            } break;
+        case "S".charCodeAt(0):
+            if(started && !paused)
+            {
+                fall_ng();
+            } break;
         case 13: switchState(); break;
         case 32: switchPause(); break;
     }
@@ -433,15 +501,23 @@ document.addEventListener('keydown', function(event)
 
 function switchState()
 {
-    if(started) stop();
-    else start();
+    if(started)
+    {
+        stop();
+    }
+    else
+    {
+        start();
+    }
 }
 
 var sequence = [];
 function getRandomBlock()
 {
     if(!sequence.length)
+    {
         sequence = generateBag();
+    }
     return sequence.pop();
 }
 
@@ -453,7 +529,9 @@ function generateBag()
     {
         item = getRandomInt(0, 7);
         if(bag.indexOf(item) === -1)
+        {
             bag.push(item);
+        }
     }
     return bag.reverse();
 }
