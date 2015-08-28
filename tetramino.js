@@ -279,27 +279,14 @@ function Block(type, field)
 
     this.rotateRight = function()
     {
-        this.remove();
         var newState = this.nextState('r');
         var rotated = this.rightRotated();
-        var offset;
-        if( (offset = this.getOffset(rotated, newState)) )
-        {
-            this.state = newState;
-            this.model = rotated;
-            this.insert(this.x + offset[0], this.y + offset[1]);
-        }
-        else
-        {
-            this.insert(this.x, this.y);
-        }
+        this.rotate(newState, rotated)
     };
 
-    this.rotateLeft = function()
+    this.rotate = function(newState, rotated)
     {
         this.remove();
-        var newState = this.nextState('l');
-        var rotated = this.leftRotated();
         var offset;
         if( (offset = this.getOffset(rotated, newState)) )
         {
@@ -308,6 +295,13 @@ function Block(type, field)
             this.insert(this.x + offset[0], this.y + offset[1]);
         }
         else this.insert(this.x, this.y);
+    };
+
+    this.rotateLeft = function()
+    {
+        var newState = this.nextState('l');
+        var rotated = this.leftRotated();
+        this.rotate(newState, rotated)
     };
 
     this.spawn = function()
