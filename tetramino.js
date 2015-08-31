@@ -372,7 +372,8 @@ var delay = 200;
 
 function create_ng()
 {
-    var TMId = getRandomBlock();
+    var brick_generator = new BrickGenerator();
+    var TMId = brick_generator.get_brick();
     var blocks = ['I', 'O', 'S', 'Z', 'T', 'J', 'L'];
     block = new Block(blocks[TMId], field);
     if(!block.spawn())
@@ -511,27 +512,31 @@ function switchState()
     }
 }
 
-var sequence = [];
-function getRandomBlock()
+function BrickGenerator()
 {
-    if(!sequence.length)
+    this.generate_bag = function()
     {
-        sequence = generateBag();
-    }
-    return sequence.pop();
-}
-
-function generateBag()
-{
-    var item;
-    var bag = [];
-    while(bag.length < 7)
-    {
-        item = getRandomInt(0, 7);
-        if(bag.indexOf(item) === -1)
+        var item;
+        var bag = [];
+        while(bag.length < 7)
         {
-            bag.push(item);
+            item = getRandomInt(0, 7);
+            if(bag.indexOf(item) === -1)
+            {
+                bag.push(item);
+            }
         }
-    }
-    return bag.reverse();
+        return bag.reverse();
+    };
+
+    this.bag = this.generate_bag();
+
+    this.get_brick = function()
+    {
+        if(!this.bag.length)
+        {
+            this.bag = this.generateBag();
+        }
+        return this.bag.pop();
+    };
 }
